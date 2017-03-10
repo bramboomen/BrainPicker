@@ -1,32 +1,9 @@
 from html.parser import HTMLParser
 from urllib.request import urlopen
 from urllib import parse
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup # Library for parsing html-tags ao.
 
 bp = "https://www.brainpickings.org/2017/03/01/mary-ruefle-madness-rack-and-honey-prayer/"
-
-
-def getLinks(url):
-    print("started")
-    links = []
-    # Remember the base URL which will be important when creating
-    # absolute URLs
-    baseUrl = url
-    # Use the urlopen function from the standard Python 3 library
-    response = urlopen(url)
-    # Make sure that we are looking at HTML and not other things that
-    # are floating around on the internet (such as
-    # JavaScript files, CSS, or .PDFs for example)
-    if response.getheader('Content-Type') == "text/html; charset=UTF-8":
-        htmlBytes = response.read()
-        htmlString = htmlBytes.decode("utf-8")
-        htmlString = bp_preprocessor(htmlString)
-        print("crawling " + url)
-        #links = findurls(htmlString)
-        return links
-    else:
-        print(url + "not crawlable")
-        return "",[]
 
 
 def bptest():
@@ -37,6 +14,24 @@ def bptest():
         print(l)
 
 
+# Main Crawler function
+def getLinks(url):
+    print("started")
+    links = []
+    baseUrl = url
+    response = urlopen(url)
+    if response.getheader('Content-Type') == "text/html; charset=UTF-8": # Make sure that page is HTML
+        htmlBytes = response.read()
+        htmlString = htmlBytes.decode("utf-8")
+        htmlString = bp_preprocessor(htmlString)
+        print("crawling " + url)
+        links = findurls(htmlString)
+        return links
+    else:
+        print(url + "not crawlable")
+        return "",[]
+
+
 def bp_preprocessor(html):
     soup = BeautifulSoup(html, "html.parser")
     r = soup.findAll('div', { "class" : "entry_content" })
@@ -45,7 +40,8 @@ def bp_preprocessor(html):
 
 def findurls(html):
     soup = BeautifulSoup(html, "html.parser")
-    links = soup.findAll('href')
+    links = soup.findAll('href') # TODO: find html class
+    # TODO return
 
 
 def bp_afterprocessor(links):
