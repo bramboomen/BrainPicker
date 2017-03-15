@@ -6,7 +6,7 @@ c = connection.cursor()
 c.execute('''CREATE TABLE article
                 (
                     url VARCHAR(250) PRIMARY KEY,
-                    title VARCHAR(250)
+                    title VARCHAR(250) NOT NULL
                 )
           ''')
 
