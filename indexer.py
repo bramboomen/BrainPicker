@@ -72,6 +72,6 @@ class Indexer:
 
         urls = []
         for url in r.find_all(href=True):
-            if "brainpickings.org/20" in url and url['href'] not in urls:
+            if "brainpickings.org/20" in url['href'] and url['href'] not in urls:
                 urls.append(url['href']) # This does not work
         return urls
