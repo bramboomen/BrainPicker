@@ -15,8 +15,11 @@ def crawltest():
 
 
 def indextest():
-    indexer = Indexer(2017, 1, 1)
+    indexer = Indexer(2017, 3, 1)
     index = indexer.bp_index()
+    print("-----------------------------------------------")
+    print("-------------------- index --------------------")
+    print("-----------------------------------------------")
     for i in index:
         print(i)
 

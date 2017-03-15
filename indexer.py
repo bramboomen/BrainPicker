@@ -1,56 +1,35 @@
 from utils import read_url, dts
 from bs4 import BeautifulSoup # Library for parsing html-tags ao.
-import time
+import datetime as dt
 
 
 class Indexer:
 
     def __init__(self, start_year, start_month, start_day):
         self.baseurl = "https://www.brainpickings.org"
-        self.start_year = start_year
-        self.start_month = start_month
-        self.start_day = start_day
-        # Brainpicking uses format: baseurl/yyyy/mm/dd
-        self.end_year = int(time.strftime('%Y'))
-        self.end_month = int(time.strftime('%m'))
-        self.end_day = int(time.strftime('%d'))
+        self.start_date = dt.date(start_year, start_month, start_day)
+        self.end_date = dt.date.today()
+
 
     def bp_index(self):
         print("Indexing from: " +
-              dts(self.start_year) + "/" +
-              dts(self.start_month) + "/" +
-              dts(self.start_day) +
+              str(self.start_date) +
               " to: " +
-              dts(self.end_year) + "/" +
-              dts(self.end_month) + "/" +
-              dts(self.end_day)
+              str(self.end_date)
               )
 
-        curr_year = self.start_year
-        curr_month = self.start_month
-        curr_day = self.start_day
-
         urllist = []
+        delta = dt.timedelta(days=1)
 
-        while (curr_year != self.end_year or
-               curr_month != self.end_month or
-               curr_day != self.end_day):
-            for y in range (self.start_year, self.end_year+1):
-                for m in range (1, 13):
-                    for d in range (1, 32):
-                        curr_year = y
-                        curr_month = m
-                        curr_day = d
-                        if (curr_year == self.end_year and
-                            curr_month == self.end_month and
-                            curr_day == self.end_day):
-                            break
-                        page = self.fetch_page(y, m, d)
-                        if (page != "empty"):
-                            for url in page:
-                                urllist.append(url)
-                                print("added: " + url)
-
+        while self.start_date <= self.end_date:
+            page = self.fetch_page(self.start_date.year,
+                                   self.start_date.month,
+                                   self.start_date.day)
+            if (page != "empty"):
+                for url in page:
+                    urllist.append(url)
+                    print("added: " + url)
+            self.start_date += delta
         return urllist
 
 
