@@ -23,9 +23,9 @@ def getLinks(url):
     if response.getheader('Content-Type') == "text/html; charset=UTF-8": # Make sure that page is HTML
         htmlBytes = response.read()
         htmlString = htmlBytes.decode("utf-8")
-        htmlString = bp_preprocessor(htmlString)
+        entry = bp_preprocessor(htmlString)
         print("crawling " + url)
-        links = findurls(htmlString)
+        links = findurls(entry)
         return links
     else:
         print(url + "not crawlable")
@@ -34,14 +34,16 @@ def getLinks(url):
 
 def bp_preprocessor(html):
     soup = BeautifulSoup(html, "html.parser")
-    r = soup.findAll('div', { "class" : "entry_content" })
+    r = soup.find('div', { "class" : "entry_content" })
+
     return r
 
 
 def findurls(html):
-    soup = BeautifulSoup(html, "html.parser")
-    links = soup.findAll('href') # TODO: find html class
-    # TODO return
+    links = []
+    for link in html.find_all(href=True):
+        links.append(link['href'])
+    return links
 
 
 def bp_afterprocessor(links):
