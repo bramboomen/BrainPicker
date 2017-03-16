@@ -4,7 +4,9 @@ from crawler import *
 from indexer import *
 import sys
 
+
 bp = "https://www.brainpickings.org/2017/03/01/mary-ruefle-madness-rack-and-honey-prayer/"
+
 
 def crawltest():
     print("visiting: " + bp)

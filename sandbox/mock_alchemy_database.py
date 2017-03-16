@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sandbox.alchemy_database import base, Article, Reference
 
+from database import base, Article, Reference
 
 engine = create_engine('sqlite:///alchemybrain.db')
 base.metadata.bind = engine
