@@ -30,13 +30,14 @@ class Indexer:
                     urllist.append(url)
                     print("added: " + url)
             self.start_date += delta
+        self.fetch_text_list(urllist)
+
         return urllist
 
 
     def fetch_page(self, y, m, d):
         url = self.baseurl + "/" + dts(y) + "/" + dts(m) + "/" + dts(d) + "/"
         response = read_url(url)
-
         if (response == "empty"):
             return response
         else:
@@ -52,5 +53,43 @@ class Indexer:
         urls = []
         for url in r.find_all(href=True):
             if "brainpickings.org/20" in url['href'] and url['href'] not in urls:
-                urls.append(url['href']) # This does not work
+                urls.append(url['href'])
         return urls
+
+    def fetch_text(self, url):
+        html = read_url(url)
+        soup = BeautifulSoup(html, "html.parser")
+        r = soup.find("div", {"id": "posts"})
+        return r
+
+    #zet een list van urls om in een dictionary waarin elke url naar zijn tekst + tags verwijst
+    def fetch_text_list(self, urllist):
+        htmldict = {}
+        for url in urllist:
+            html = read_url(url)
+            soup = BeautifulSoup(html, "html.parser")
+            #r = text van de post, a = tags van de post
+            r = soup.find("div", {"id": "posts"})
+            a = soup.find("h4", {"class": "tags"})
+            htmldict[url] = str(r) + str(a)
+            print(htmldict[url])
+            self.fetch_tags(htmldict[url])
+        return htmldict
+
+    #returned de title als losse string uit een html bestand
+    def fetch_title(self, html):
+        soup = BeautifulSoup(html, "html.parser")
+        r = soup.find("h1", {"class": "entry-title"})
+        return r.string
+
+    #returned de tags als losse string uit een html bestand
+    def fetch_tags(self, html):
+        tags = []
+        soup = BeautifulSoup(html, "html.parser")
+        r = soup.find_all("a", {"rel": "tag"})
+        for tag in r:
+            tags.append(tag.string)
+        return tags
+
+
+
