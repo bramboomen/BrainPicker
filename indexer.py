@@ -62,7 +62,7 @@ class Indexer:
             print("visiting: " + url)
             title = url.replace("https://", "")
             title = title.replace("/",":")
-            if self.local:
+            if self.save:
                 save_html(response, "html_collection_pages/" + title)
             articles = self.fetch_articles(response)
             for article in articles:
