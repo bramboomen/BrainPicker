@@ -17,7 +17,7 @@ def crawltest():
 
 
 def indextest():
-    indexer = Indexer(2017, 3, 1)
+    indexer = Indexer(2017, 3, 1, local=False, save=False)
     index = indexer.bp_index()
     print("-----------------------------------------------")
     print("-------------------- index --------------------")

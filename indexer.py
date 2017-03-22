@@ -1,4 +1,4 @@
-from utils import read_url, dts
+from utils import read, dts, save_html
 from bs4 import BeautifulSoup # Library for parsing html-tags ao.
 import datetime as dt
 from database_utils import db_session
@@ -6,11 +6,12 @@ from database_utils import db_session
 
 class Indexer:
 
-    def __init__(self, start_year, start_month, start_day):
+    def __init__(self, start_year, start_month, start_day, local, save):
         self.baseurl = "https://www.brainpickings.org"
         self.start_date = dt.date(start_year, start_month, start_day)
-        #self.end_date = dt.date.today()
-        self.end_date = dt.date(2008, 5, 1)
+        self.end_date = dt.date.today()
+        self.local = local
+        self.save = save
 
 
     def bp_index(self):
@@ -54,11 +55,15 @@ class Indexer:
         """
 
         url = self.baseurl + "/" + dts(y) + "/" + dts(m) + "/" + dts(d) + "/"
-        response = read_url(url)
+        response = read(url, self.local)
         if (response == "empty"):
             return response
         else:
             print("visiting: " + url)
+            title = url.replace("https://", "")
+            title = title.replace("/",":")
+            if self.local:
+                save_html(response, "html_collection_pages/" + title)
             articles = self.fetch_articles(response)
             for article in articles:
                 article['date'] = dt.date(y, m, d)

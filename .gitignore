@@ -6,3 +6,5 @@ bpvenv
 __pycache__
 ** / __pycache__
 *.db
+
+*.html
