@@ -2,5 +2,7 @@
 .idea
 *.pyc
 venv
+bpvenv
 __pycache__
 ** / __pycache__
+*.db

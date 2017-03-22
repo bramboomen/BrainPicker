@@ -1,6 +1,7 @@
 from urllib.request import urlopen
 import urllib.error
 
+
 def read_url(url):
     try: response = urlopen(url)
     except urllib.error.HTTPError as e:
