@@ -34,7 +34,7 @@ class Indexer:
                     articlelist.append(article)
                     print("added: " + article['title'])
             self.start_date += delta
-        self.fetch_text_list(urllist)
+        #self.fetch_text_list(articlelist)
 
 
         #return urllist
