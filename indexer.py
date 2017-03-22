@@ -1,4 +1,4 @@
-from utils import read, dts, save_html
+from utils import read, dts, save_html, log
 from bs4 import BeautifulSoup # Library for parsing html-tags ao.
 import datetime as dt
 from database_utils import db_session
@@ -19,7 +19,7 @@ class Indexer:
         Main index method, iterates all dates within a range
         :return: a list of dicts { 'url': url, 'title': title, 'date': date object }
         """
-        print("Indexing from: " +
+        log("Indexing from: " +
               str(self.start_date) +
               " to: " +
               str(self.end_date)
