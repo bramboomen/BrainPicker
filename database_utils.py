@@ -8,7 +8,7 @@ class db_session:
 
 
     def __init__(self):
-        engine = create_engine('sqlite:///alchemybrain.db')
+        engine = create_engine('sqlite:///brain.db')
         base.metadata.bind = engine
         DBSession = sessionmaker(bind=engine)
         self.session = DBSession()
