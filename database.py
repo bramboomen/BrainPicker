@@ -16,7 +16,7 @@ class Article(base):
 
 class Reference(base):
     __tablename__ = 'reference'
-    id = Column(Integer, primary_key=True)
+    id = Column(String(250), primary_key=True)
     url = Column(String(250), nullable=False)
     ref = Column(String(250), ForeignKey('article.url'))
     article = relationship(Article)

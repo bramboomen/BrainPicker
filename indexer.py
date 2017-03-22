@@ -85,7 +85,7 @@ class Indexer:
                     and article['href'] not in urls
                     and ['yellow'] in article.attrs.values()):
                 url = article['href']
-                title = article.contents[0]
+                title = str(article.contents[0])
                 urls.append({'url': url, 'title': title})
         return urls
 
