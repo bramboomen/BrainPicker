@@ -15,8 +15,15 @@ class db_session:
 
 
     def insert_article(self, art):
+        exists = self.session.query(Article).filter_by(url=art['url']).first()
         article = Article(url=art['url'], title=art['title'], date=art['date'])
-        self.session.add(article)
+        if not exists:
+            self.session.add(article)
+            print("added: " + art['title'] + " to Database")
+        else:
+            self.session.merge(article)
+            print("merged: " + art['title'] + " in Database")
+        self.session.commit()
 
 
     def insert_reference(self, ref):

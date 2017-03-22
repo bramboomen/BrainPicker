@@ -1,4 +1,4 @@
-from utils import read, dts, save_html, log
+from utils import read, dts, save_html, Logger
 from bs4 import BeautifulSoup # Library for parsing html-tags ao.
 import datetime as dt
 from database_utils import db_session
@@ -12,6 +12,7 @@ class Indexer:
         self.end_date = dt.date.today()
         self.local = local
         self.save = save
+        self.logger = Logger()
 
 
     def bp_index(self):
@@ -19,7 +20,7 @@ class Indexer:
         Main index method, iterates all dates within a range
         :return: a list of dicts { 'url': url, 'title': title, 'date': date object }
         """
-        log("Indexing from: " +
+        self.logger.write_log("Indexing from: " +
               str(self.start_date) +
               " to: " +
               str(self.end_date)
@@ -36,13 +37,12 @@ class Indexer:
             if (page != "empty"):
                 for article in page:
                     articlelist.append(article)
-                    print("added: " + article['title'])
+                    print("found: " + article['title'])
                     db.insert_article(article)
             self.start_date += delta
         #self.fetch_text_list(articlelist)
         #return urllist
-        db.commit()
-        return articlelist
+        print("--- FINISHED ---")
 
 
     def fetch_page(self, y, m, d):
@@ -55,7 +55,7 @@ class Indexer:
         """
 
         url = self.baseurl + "/" + dts(y) + "/" + dts(m) + "/" + dts(d) + "/"
-        response = read(url, self.local)
+        response = read(url, self.local, self.logger)
         if (response == "empty"):
             return response
         else:
@@ -63,7 +63,7 @@ class Indexer:
             title = url.replace("https://", "")
             title = title.replace("/",":")
             if self.save:
-                save_html(response, "html_collection_pages/" + title)
+                save_html(response, "html_collection_pages/" + title, self.logger)
             articles = self.fetch_articles(response)
             for article in articles:
                 article['date'] = dt.date(y, m, d)
