@@ -1,7 +1,7 @@
 from utils import read, dts, save_html, Logger
 from bs4 import BeautifulSoup # Library for parsing html-tags ao.
 import datetime as dt
-from database_utils import db_session
+from database_utils import DBSession
 
 
 class Indexer:
@@ -26,7 +26,7 @@ class Indexer:
               str(self.end_date)
               )
 
-        db = db_session()
+        db = DBSession()
         articlelist = []
         delta = dt.timedelta(days=1)
 
@@ -40,8 +40,6 @@ class Indexer:
                     print("found: " + article['title'])
                     db.insert_article(article)
             self.start_date += delta
-        #self.fetch_text_list(articlelist)
-        #return urllist
         print("--- FINISHED ---")
 
 
@@ -62,7 +60,8 @@ class Indexer:
             print("visiting: " + url)
             title = url.replace("https://", "")
             title = title.replace("/",":")
-            if self.save:
+            # Save the article locally
+            if self.save and not self.local:
                 save_html(response, "html_collection_pages/" + title, self.logger)
             articles = self.fetch_articles(response)
             for article in articles:
@@ -88,37 +87,3 @@ class Indexer:
                 title = str(article.contents[0])
                 urls.append({'url': url, 'title': title})
         return urls
-
-    def fetch_text(self, url):
-        html = read_url(url)
-        soup = BeautifulSoup(html, "html.parser")
-        r = soup.find("div", {"id": "posts"})
-        return r
-
-    #zet een list van urls om in een dictionary waarin elke url naar zijn tekst + tags verwijst
-    def fetch_text_list(self, urllist):
-        htmldict = {}
-        for url in urllist:
-            html = read_url(url)
-            soup = BeautifulSoup(html, "html.parser")
-            #r = text van de post, a = tags van de post
-            r = soup.find("div", {"id": "posts"})
-            a = soup.find("h4", {"class": "tags"})
-            htmldict[url] = str(r) + str(a)
-            self.fetch_tags(htmldict[url])
-        return htmldict
-
-    #returned de title als losse string uit een html bestand
-    def fetch_title(self, html):
-        soup = BeautifulSoup(html, "html.parser")
-        r = soup.find("h1", {"class": "entry-title"})
-        return r.string
-
-    #returned de tags als losse string uit een html bestand
-    def fetch_tags(self, html):
-        tags = []
-        soup = BeautifulSoup(html, "html.parser")
-        r = soup.find_all("a", {"rel": "tag"})
-        for tag in r:
-            tags.append(tag.string)
-        return tags

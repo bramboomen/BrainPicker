@@ -4,13 +4,13 @@ import hashlib
 from database import base, Article, Reference
 
 
-class db_session:
+class DBSession:
 
     def __init__(self):
         engine = create_engine('sqlite:///brain.db')
         base.metadata.bind = engine
-        DBSession = sessionmaker(bind=engine)
-        self.session = DBSession()
+        db_session = sessionmaker(bind=engine)
+        self.session = db_session()
 
     def insert_article(self, art):
         exists = self.session.query(Article).filter_by(url=art['url']).first()
@@ -24,13 +24,17 @@ class db_session:
         self.session.commit()
 
     def insert_reference(self, ref):
+        # Generate unique id for db
+        sha_id = hashlib.sha1(bytes(ref['url'] + ref['ref'], 'utf-8'))
+        ref['id'] = sha_id.hexdigest()
         exists = self.session.query(Reference).filter_by(id=ref['id']).first()
-        reference = Reference(id=id, url=ref['url'], ref=ref['ref'])
         if not exists:
+            reference = Reference(id=ref['id'], url=ref['url'], ref=ref['ref'])
             self.session.add(reference)
-            print("added link from: " + ref['url'] + " to: " + ref['ref'])
+            print("added reference from: " + ref['url'] + " to: " + ref['ref'])
         else:
-            print("link already exists in database")
+            print("reference already exists in database")
+        self.session.commit()
 
     def commit(self):
         self.session.commit()
