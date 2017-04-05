@@ -18,6 +18,12 @@ def crawl(start, end, local, save):
             ref = {'url': url[0],
                    'ref': reference}
             db.insert_reference(ref)
+        people = crawler.get_people()
+        for person in people
+            rel = {'article': url[0],
+                   'person': person['name'],
+                   'count': person['count'],
+                   'main': person['am_i_main']}
 
 
 def get_ordered_articles():
@@ -53,6 +59,9 @@ class Crawler:
                 internal_links.append(link)
                 print("found internal: " + link)
         return internal_links
+
+    def get_people(self):
+        # Todo: make connection to ner
 
     def bp_preprocessor(self):
         html = read(self.url, self.local, self.log)

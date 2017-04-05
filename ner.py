@@ -12,7 +12,7 @@ os.environ['JAVAHOME'] = java_path
 
 file = "www.brainpickings.org/2017/03/10/elizabeth-bishop-efforts-of-affection-a-memoir-of-marianne-moore/.html"
 file = file.replace("/", ":")
-page = open("html_pages/" + file, "r")
+page = open("../html_pages/" + file, "r")
 
 
 class NameFinder:
@@ -56,15 +56,15 @@ class NameFinder:
     def count(self, ne_list):
         count_list = []
         for a in ne_list:
-            a.append(1)
+            a['count'] = 1
             for b in count_list:
-                if a[0].lower() == b[0].lower() or a[0].lower() in b[0].lower():
-                    b[2] += 1
-                elif b[0].lower() in a[0].lower():
+                if a['name'].lower() == b['name'].lower() or a['name'].lower() in b['name'].lower():
+                    b['count'] += 1
+                elif b['name'].lower() in a['name'].lower():
                     count_list.remove(b)
-                    a[2] += 1
+                    a['count'] += 1
                     count_list.append(a)
-            if not any(a[0] in sub[0] for sub in count_list):
+            if not any(a['name'] in sub['name'] for sub in count_list):
                 count_list.append(a)
         return count_list
 
@@ -86,13 +86,12 @@ class NameFinder:
         org_ne_list = []
         loc_ne_list = []
         for ne in output:
-            ne = list(ne)
-            ne[0] = ne[0].replace('\n', '')
-            if ne[1] == 'PERSON':
+            ne = {'name': ne[0].replace('\n', ''), 'type': ne[1]}
+            if ne['type'] == 'PERSON':
                 person_ne_list.append(ne)
-            if ne[1] == 'ORGANISATION':
+            if ne['type'] == 'ORGANISATION':
                 org_ne_list.append(ne)
-            if ne[1] == 'LOCATION':
+            if ne['type'] == 'LOCATION':
                 loc_ne_list.append(ne)
         return person_ne_list, org_ne_list, loc_ne_list
 
@@ -147,3 +146,10 @@ class MyNer(Ner):
         sent_conlltags = [(token, pos, ne) for token, pos, ne in zip(sent_tokens, sent_pos_tags, sent_ne_tags)]
         ne_tree = conlltags2tree(sent_conlltags)
         return ne_tree
+
+
+nf = NameFinder(page)
+persons = nf.get_persons()
+pers = nf.count(persons)
+for p in pers:
+    print(p)

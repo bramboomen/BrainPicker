@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import hashlib
-from database import base, Article, Reference
+from database import base, Article, Reference, Person, ArticlePeople
 
 
 class DBSession:
@@ -34,6 +34,32 @@ class DBSession:
             print("added reference from: " + ref['url'] + " to: " + ref['ref'])
         else:
             print("reference already exists in database")
+        self.session.commit()
+
+    def insert_person(self, person):
+        exists = self.session.query(Reference).filter_by(name=person['name']).first()
+        if not exists:
+            person = Person(name=person['name'])
+            self.session.add(person)
+            print("added: " + person['name'] + " to database")
+        else:
+            print("person already exists in database")
+        self.session.commit()
+
+    def insert_article_person(self, ref):
+        sha_id = hashlib.sha1(bytes(ref['url'] + ref['name'], 'utf-8'))
+        ref['id'] = sha_id.hexdigest()
+        exists = self.session.query(Reference).filter_by(id=ref['id']).first()
+        if not exists:
+            relation = ArticlePeople(id=ref['id'],
+                                     article=ref['url'],
+                                     person=ref['name'],
+                                     count=ref['count'],
+                                     main_person=ref['main'])
+            self.session.add(relation)
+            print("added relation from: " + ref['url'] + " to: " + ref['name'])
+        else:
+            print("relation already exists in database")
         self.session.commit()
 
     def commit(self):
