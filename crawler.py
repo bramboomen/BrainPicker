@@ -4,16 +4,29 @@ from database_utils import DBSession
 from database import Article
 
 
-def crawl(local, save):
+def crawl(start, end, local, save):
     db = DBSession()
-    urls = db.session.query(Article.url).limit(5).all()
-    for url in urls:
+    urls = get_ordered_articles()
+    if end < 0:
+        end = urls.__len__()
+    for x in range(start, end+1):
+        url = urls[x]
+        print("crawling index: " + str(x))
         crawler = Crawler(url[0], local, save)
         references = crawler.get_internal_links()
         for reference in references:
             ref = {'url': url[0],
                    'ref': reference}
             db.insert_reference(ref)
+
+
+def get_ordered_articles():
+    db = DBSession()
+    urls = db.session.query(Article.url).all()
+    url_list = []
+    for url in urls:
+        url_list.append(url)
+    return url_list
 
 
 class Crawler:
