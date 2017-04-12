@@ -26,13 +26,39 @@ class Person(base):
     name = Column(String(250), primary_key=True)
 
 
-class ArticlePeople(base):
-    __tablename__ = 'article_people'
+class PeopleRel(base):
+    __tablename__ = 'people_rel'
     id = Column(String(250), primary_key=True)
     article = Column(String(250), ForeignKey('article.url'))
     person = Column(String(250), ForeignKey('person.name'))
     count = Column(Integer)
     main_person = Column(Boolean)
+
+
+class Organisation(base):
+    __tablename__ = 'organisation'
+    name = Column(String(250), primary_key=True)
+
+
+class OrganisationRel(base):
+    __tablename__ = 'organisation_rel'
+    id = Column(String(250), primary_key=True)
+    article = Column(String(250), ForeignKey('article.url'))
+    organisation = Column(String(250), ForeignKey('organisation.name'))
+    count = Column(Integer)
+
+
+class Location(base):
+    __tablename__ = 'location'
+    name = Column(String(250), primary_key=True)
+
+
+class LocationRel(base):
+    __tablename__ = 'location_rel'
+    id = Column(String(250), primary_key=True)
+    article = Column(String(250), ForeignKey('article.url'))
+    location = Column(String(250), ForeignKey('location.name'))
+    count = Column(Integer)
 
 
 engine = create_engine('sqlite:///brain.db')

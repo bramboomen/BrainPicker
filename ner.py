@@ -10,18 +10,14 @@ import os
 java_path = "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java"
 os.environ['JAVAHOME'] = java_path
 
-file = "www.brainpickings.org/2017/03/10/elizabeth-bishop-efforts-of-affection-a-memoir-of-marianne-moore/.html"
-file = file.replace("/", ":")
-page = open("../html_pages/" + file, "r")
+# file = "www.brainpickings.org/2017/03/10/elizabeth-bishop-efforts-of-affection-a-memoir-of-marianne-moore/.html"
+# file = file.replace("/", ":")
+# page = open("./html_pages/" + file, "r")
 
 
 class NameFinder:
 
     def __init__(self, html):
-        # self.classifier = '/Users/bram/Documents/Universiteit/Onderzoeksproject/stanford-ner/classifiers/\
-        #                    english.all.3class.distsim.crf.ser.gz'
-        # self.jar = '/Users/bram/Documents/Universiteit/Onderzoeksproject/stanford-ner/stanford-ner-3.7.0.jar'
-        # self.ner = StanfordNERTagger(self.classifier, self.jar, encoding='utf-8')
         self.sner = MyNer(host='localhost', port=8080)
         self.text = self.format_input(html)
         self.persons = []
@@ -30,16 +26,25 @@ class NameFinder:
         self.scraped = False
 
     def get_persons(self):
+        """
+        :return: List of dicts
+         {
+            "name": 'Name of Person',
+            "type": 'PERSON',
+            "count": int
+         }
+         
+        """
         self.check()
-        return self.persons
+        return self.count(self.persons)
 
     def get_locations(self):
         self.check()
-        return self.locations
+        return self.count(self.locations)
 
     def get_organisations(self):
         self.check()
-        return self.organisations
+        return self.count(self.organisations)
 
     def get_named_entities(self):
         entities = []
@@ -50,8 +55,7 @@ class NameFinder:
 
     def scrape_named_entities(self):
         ne = self.sner.get_entities_chunked(self.text)
-        persons, organisations, locations = self.format_output(ne)
-        return persons, organisations, locations
+        return self.format_output(ne)
 
     def count(self, ne_list):
         count_list = []
@@ -68,14 +72,13 @@ class NameFinder:
                 count_list.append(a)
         return count_list
 
-    def format_input(self, input):
+    def format_input(self, html):
         """
-        :param input: html
+        :param html: html
         :return: string
         """
-        soup = BeautifulSoup(page.read(), "html.parser")
-        r = soup.find('div', {"class": "entry_content"})
-        return r.get_text(" ", strip=True).__str__()
+        # soup = BeautifulSoup(html, "html.parser")
+        return html.get_text(" ", strip=True).__str__()
 
     def format_output(self, output):
         """
@@ -105,14 +108,17 @@ class MyNer(Ner):
 
     def get_entities_chunked(self, text):
         tagged = self.get_entities(text)
-        tree = self.make_ne_tree(tagged)
-        ne_in_sent = []
-        for subtree in tree:
-            if type(subtree) == Tree:  # If subtree is a noun chunk, i.e. NE != "O"
-                ne_label = subtree.label()
-                ne_string = " ".join([token for token, pos in subtree.leaves()])
-                ne_in_sent.append((ne_string, ne_label))
-        return ne_in_sent
+        if not tagged:
+            return []
+        else:
+            tree = self.make_ne_tree(tagged)
+            ne_in_sent = []
+            for subtree in tree:
+                if type(subtree) == Tree:  # If subtree is a noun chunk, i.e. NE != "O"
+                    ne_label = subtree.label()
+                    ne_string = " ".join([token for token, pos in subtree.leaves()])
+                    ne_in_sent.append((ne_string, ne_label))
+            return ne_in_sent
 
     # Courtesy of alvas on StackOverflow
     # http://stackoverflow.com/a/30666949
@@ -146,10 +152,3 @@ class MyNer(Ner):
         sent_conlltags = [(token, pos, ne) for token, pos, ne in zip(sent_tokens, sent_pos_tags, sent_ne_tags)]
         ne_tree = conlltags2tree(sent_conlltags)
         return ne_tree
-
-
-nf = NameFinder(page)
-persons = nf.get_persons()
-pers = nf.count(persons)
-for p in pers:
-    print(p)
