@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import hashlib
-from database import base,Article, Reference,\
+from database import base,\
+    Article, Reference,\
     Person, PeopleRel,\
     Organisation, OrganisationRel,\
     Location, LocationRel
@@ -10,6 +11,7 @@ from database import base,Article, Reference,\
 class DBSession:
 
     def __init__(self):
+        # engine = create_engine('postgresql://braindb@localhost/braindb')
         engine = create_engine('sqlite:///brain.db')
         base.metadata.bind = engine
         db_session = sessionmaker(bind=engine)

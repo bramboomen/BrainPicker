@@ -18,19 +18,20 @@ class Reference(base):
     __tablename__ = 'reference'
     id = Column(String(250), primary_key=True)
     url = Column(String(250), nullable=False)
-    ref = Column(String(250), ForeignKey('article.url'))
+    ref = Column(String(250), ForeignKey('article.url', ondelete="CASCADE", onupdate="CASCADE"))
 
 
 class Person(base):
     __tablename__ = 'person'
     name = Column(String(250), primary_key=True)
+    verified = Column(Boolean)
 
 
 class PeopleRel(base):
     __tablename__ = 'people_rel'
     id = Column(String(250), primary_key=True)
-    article = Column(String(250), ForeignKey('article.url'))
-    person = Column(String(250), ForeignKey('person.name'))
+    article = Column(String(250), ForeignKey('article.url', ondelete="CASCADE", onupdate="CASCADE"))
+    person = Column(String(250), ForeignKey('person.name', ondelete="CASCADE", onupdate="CASCADE"))
     count = Column(Integer)
     main_person = Column(Boolean)
 
@@ -38,28 +39,31 @@ class PeopleRel(base):
 class Organisation(base):
     __tablename__ = 'organisation'
     name = Column(String(250), primary_key=True)
+    verified = Column(Boolean)
 
 
 class OrganisationRel(base):
     __tablename__ = 'organisation_rel'
     id = Column(String(250), primary_key=True)
-    article = Column(String(250), ForeignKey('article.url'))
-    organisation = Column(String(250), ForeignKey('organisation.name'))
+    article = Column(String(250), ForeignKey('article.url', ondelete="CASCADE", onupdate="CASCADE"))
+    organisation = Column(String(250), ForeignKey('organisation.name', ondelete="CASCADE", onupdate="CASCADE"))
     count = Column(Integer)
 
 
 class Location(base):
     __tablename__ = 'location'
     name = Column(String(250), primary_key=True)
+    verified = Column(Boolean)
 
 
 class LocationRel(base):
     __tablename__ = 'location_rel'
     id = Column(String(250), primary_key=True)
-    article = Column(String(250), ForeignKey('article.url'))
-    location = Column(String(250), ForeignKey('location.name'))
+    article = Column(String(250), ForeignKey('article.url', ondelete="CASCADE", onupdate="CASCADE"))
+    location = Column(String(250), ForeignKey('location.name', ondelete="CASCADE", onupdate="CASCADE"))
     count = Column(Integer)
 
 
+# engine = create_engine('postgresql://braindb@localhost/braindb')
 engine = create_engine('sqlite:///brain.db')
 base.metadata.create_all(engine)
