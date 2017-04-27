@@ -24,6 +24,7 @@ class Reference(base):
 class Person(base):
     __tablename__ = 'person'
     name = Column(String(250), primary_key=True)
+    count = Column(Integer)
     verified = Column(Boolean)
 
 

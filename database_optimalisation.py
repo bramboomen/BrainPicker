@@ -1,6 +1,7 @@
 from database_utils import DBSession
 from database import *
 import wikipedia as wiki
+from utils import ProgressBar
 
 
 db = DBSession()
@@ -75,7 +76,10 @@ def delete_one_offs():
     # Find all people with singleton names who get referenced < 5 times
     # These are most likely not persons
     people = dbs.query(Person).filter(Person.name.notlike("% %")).all()
+    pb = ProgressBar(people.__len__())
+
     for person in people:
+        pb.update_print(people.index(person))
         references = dbs.query(PeopleRel.count).filter(PeopleRel.person == person.name).all()
         count = sum(i[0] for i in references)
         if count < 5:
@@ -108,15 +112,11 @@ def fix_name_duplication():
 
 def verify_all_with_wikipedia():
     people = dbs.query(Person).all()
-    length = people.__len__()
-    print(str(length))
-    progress = 0
+    pb = ProgressBar(people.__len__())
     threshold = 1000
 
     for person in people:
-        progress += 1
-        if progress % int(length/100) == 0:
-            print(str(int((progress / length * 100) + 1)) + "%")
+        pb.update_print(people.index(person))
         name, count = verify_with_wikipedia(person.name, threshold)
         if name and count < threshold:
             person.verified = True

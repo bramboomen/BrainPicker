@@ -2,6 +2,7 @@ from urllib.request import urlopen
 import urllib.error
 import os.path
 import datetime as dt
+import sys
 
 
 class Logger:
@@ -74,3 +75,31 @@ def dts(x):
         return "0" + (str(x))
     else:
         return str(x)
+
+
+class ProgressBar:
+
+    def __init__(self, total, start=0, bar=True):
+        self.total = total
+        self.current = start
+        self.bar = bar
+
+    def update(self, current):
+        self.current = current
+
+    def print(self):
+        percentage = int((self.current / self.total) * 100) + 1
+        bar = self.gen_bar(percentage)
+        sys.stdout.write("\r" + str(percentage) + "% " + bar)
+        sys.stdout.flush()
+
+    def update_print(self, current):
+        self.update(current)
+        self.print()
+
+    def gen_bar(self, perc):
+        bar = ""
+        if self.bar:
+            percentage = perc
+            bar = "[" + "="*percentage + " "*(100-percentage) + "]"
+        return bar
