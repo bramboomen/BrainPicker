@@ -8,27 +8,29 @@ dbs = db.session
 
 
 def optimize_my_database():
-    # print("Optimize one-offs")
-    # delete_one_offs()
-    # print("Finished one-offs")
-    #
-    # print("Optimize too-longs")
-    # remove_five_or_more_name()
-    # print("Finished too-longs")
-    #
-    # print("Optimize duplication")
-    # fix_name_duplication()
-    # print("Finished duplication")
-    #
-    # print("Optimize not-letters")
-    # fix_not_letters_in_name()
-    # print("Finished not-letters")
-    #
-    # print("Verify")
-    # verify_all_with_wikipedia()
-    # print("Finished Verification")
+    print("Optimize one-offs")
+    delete_one_offs()
+    print("Finished one-offs")
 
+    print("Optimize too-longs")
+    remove_five_or_more_name()
+    print("Finished too-longs")
+
+    print("Optimize duplication")
+    fix_name_duplication()
+    print("Finished duplication")
+
+    print("Optimize not-letters")
+    fix_not_letters_in_name()
+    print("Finished not-letters")
+
+    print("Fix link-errors")
     link_errors()
+    print("Finished link-errors")
+
+    print("Verify")
+    verify_all_with_wikipedia()
+    print("Finished Verification")
 
 
 def remove_five_or_more_name():
