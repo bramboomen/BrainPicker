@@ -11,18 +11,24 @@ def optimize_my_database():
     # print("Optimize one-offs")
     # delete_one_offs()
     # print("Finished one-offs")
+    #
     # print("Optimize too-longs")
     # remove_five_or_more_name()
     # print("Finished too-longs")
+    #
     # print("Optimize duplication")
     # fix_name_duplication()
     # print("Finished duplication")
+    #
     # print("Optimize not-letters")
     # fix_not_letters_in_name()
     # print("Finished not-letters")
-    print("Verify")
-    verify_all_with_wikipedia()
-    print("Finished Verification")
+    #
+    # print("Verify")
+    # verify_all_with_wikipedia()
+    # print("Finished Verification")
+
+    link_errors()
 
 
 def remove_five_or_more_name():
@@ -34,7 +40,23 @@ def remove_five_or_more_name():
     dbs.commit()
 
 
+def link_errors():
+    # Find all links that do not start with "https://www" and change them to the correct link
+    wrong_links = ["http://www.brain", "www.brain", "https://brain", "http://brain", " https://www.brain"]
+    for wrong_link in wrong_links:
+        references = dbs.query(Reference).filter(Reference.ref.like(wrong_link + "%")).all()
+        for reference in references:
+            reference.ref = reference.ref.replace(wrong_link, "https://www.brain")
+    dbs.commit()
+    # Any wrong links left get deleted
+    wrong_references = dbs.query(Reference).filter(Reference.ref.notlike("https://www.brain")).all()
+    for wrong_reference in wrong_references:
+        dbs.delete(wrong_reference)
+    dbs.commit()
+
+
 def fix_not_letters_in_name():
+    # Find people with non-letters in the name
     not_letters = ["--", "?", "''", "`", "\\"]
     for not_letter in not_letters:
         people = dbs.query(Person).filter(Person.name.like("%" + not_letter + "%"))
@@ -50,7 +72,7 @@ def fix_not_letters_in_name():
 def delete_one_offs():
     # Find all people with singleton names who get referenced < 5 times
     # These are most likely not persons
-    people = dbs.query(Person).filter(Person.name.notlike("% %")).limit(500)
+    people = dbs.query(Person).filter(Person.name.notlike("% %")).all()
     for person in people:
         references = dbs.query(PeopleRel.count).filter(PeopleRel.person == person.name).all()
         count = sum(i[0] for i in references)
@@ -87,22 +109,22 @@ def verify_all_with_wikipedia():
     length = people.__len__()
     print(str(length))
     progress = 0
+    threshold = 1000
 
     for person in people:
         progress += 1
-        print(str(progress))
         if progress % int(length/100) == 0:
-            print(str(int(progress / length * 100)) + "%")
-        name, count = verify_with_wikipedia(person.name)
-        if name and count < 1000:
+            print(str(int((progress / length * 100) + 1)) + "%")
+        name, count = verify_with_wikipedia(person.name, threshold)
+        if name and count < threshold:
             person.verified = True
 
     dbs.commit()
 
 
-def verify_with_wikipedia(name):
+def verify_with_wikipedia(name, threshold):
     # Search wikipedia, return true if first result is the same as the name
-    search = wiki.search(name, results=500)
+    search = wiki.search(name, results=int(threshold/2))
     if search:
         if search[0].lower() == name.lower():
             return True, wiki_search_counter(name, search)
