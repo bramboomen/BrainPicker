@@ -1,5 +1,7 @@
 from database_utils import DBSession
 from database import *
+from sqlalchemy import func
+from sqlalchemy.sql import collate
 import wikipedia as wiki
 from utils import ProgressBar
 
@@ -11,36 +13,22 @@ dbs = db.session
 def optimize_my_database():
     print("Optimize one-offs")
     delete_one_offs()
-    print("Finished one-offs")
 
     print("Optimize too-longs")
-    remove_five_or_more_name()
-    print("Finished too-longs")
+    delete_five_or_more()
 
     print("Optimize duplication")
     fix_name_duplication()
-    print("Finished duplication")
+    fix_case_duplication()
 
     print("Optimize not-letters")
-    fix_not_letters_in_name()
-    print("Finished not-letters")
+    fix_symbols()
 
     print("Fix link-errors")
     link_errors()
-    print("Finished link-errors")
 
     print("Verify")
     verify_all_with_wikipedia()
-    print("Finished Verification")
-
-
-def remove_five_or_more_name():
-    # Find all people with four or more name-parts and delete them
-    # These are most likely mistakes
-    people = dbs.query(Person).filter(Person.name.like("% % % % %")).all()
-    for person in people:
-        dbs.delete(person)
-    dbs.commit()
 
 
 def link_errors():
@@ -58,7 +46,7 @@ def link_errors():
     dbs.commit()
 
 
-def fix_not_letters_in_name():
+def fix_symbols():
     # Find people with non-letters in the name
     not_letters = ["--", "?", "''", "`", "\\"]
     for not_letter in not_letters:
@@ -87,6 +75,15 @@ def delete_one_offs():
     dbs.commit()
 
 
+def delete_five_or_more():
+    # Find all people with four or more name-parts and delete them
+    # These are most likely mistakes
+    people = dbs.query(Person).filter(Person.name.like("% % % % %")).all()
+    for person in people:
+        dbs.delete(person)
+    dbs.commit()
+
+
 def fix_name_duplication():
     # Find names which got duplicated and fix them
     # Like: 'Albert Einstein Albert Einstein'
@@ -108,6 +105,37 @@ def fix_name_duplication():
                 else:
                     person.name = name
                 dbs.commit()
+
+
+def fix_case_duplication():
+    # Find duplications based on case
+    people = dbs\
+        .query(Person.name, func.count(Person.name))\
+        .group_by(collate(Person.name, 'NOCASE'))\
+        .having(func.count(Person.name) > 1)\
+        .all()
+    for p in people:
+        merge_person(p.name)
+
+
+def merge_person(name):
+    name = name.title()
+    people = dbs.query(Person).filter(func.lower(Person.name) == func.lower(name)).all()
+    count = 0
+    verified = False
+    for person in people:
+        count += person.count
+        if person.verified:
+            verified = True
+    person = people[0]
+    del people[0]
+    for p in people:
+        dbs.delete(p)
+    dbs.commit()
+    person.name = name
+    person.count = count
+    person.verified = verified
+    dbs.commit()
 
 
 def verify_all_with_wikipedia():
@@ -144,4 +172,4 @@ def wiki_search_counter(name, search):
     return counter
 
 
-optimize_my_database()
+fix_case_duplication()

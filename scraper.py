@@ -5,7 +5,7 @@ from database import Article
 from ner import NameFinder
 
 
-def crawl(start, end, local, save, what_to_do):
+def scrape(start, end, local, save, what_to_do):
     db = DBSession()
     urls = get_ordered_articles()
     if "all" in what_to_do:
@@ -15,7 +15,7 @@ def crawl(start, end, local, save, what_to_do):
     for x in range(start, end+1):
         url = urls[x]
         print("crawling index: " + str(x))
-        crawler = Crawler(url[0], local, save)
+        crawler = Scraper(url[0], local, save)
         if "references" in what_to_do:
             references = crawler.get_internal_links()
             for reference in references:
@@ -61,7 +61,7 @@ def get_ordered_articles():
     return url_list
 
 
-class Crawler:
+class Scraper:
 
     def __init__(self, url, local, save):
         self.url = url
