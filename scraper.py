@@ -5,16 +5,15 @@ from database import Article
 from ner import NameFinder
 
 
-def scrape(start, end, local, save, what_to_do):
+def scrape(start, end=-1, local=False, save=True, what_to_do="all"):
     db = DBSession()
-    urls = get_ordered_articles()
+    urls = get_ordered_articles(start)
     if "all" in what_to_do:
         what_to_do = "references, people, organisations, locations"
     if end < 0:
         end = urls.__len__()
-    for x in range(start, end+1):
+    for x in range(end):
         url = urls[x]
-        print("crawling index: " + str(x))
         crawler = Scraper(url[0], local, save)
         if "references" in what_to_do:
             references = crawler.get_internal_links()
@@ -52,9 +51,9 @@ def scrape(start, end, local, save, what_to_do):
                 })
 
 
-def get_ordered_articles():
+def get_ordered_articles(start):
     db = DBSession()
-    urls = db.session.query(Article.url).all()
+    urls = db.session.query(Article.url).filter(Article.date > start).all()
     url_list = []
     for url in urls:
         url_list.append(url)
@@ -84,7 +83,6 @@ class Scraper:
         for link in links:
             if "brainpickings.org/20" in link and link not in internal_links:
                 internal_links.append(link)
-                print("found internal: " + link)
         return internal_links
 
     def get_people(self):

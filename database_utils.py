@@ -23,9 +23,6 @@ class DBSession:
         if not exists:
             self.session.add(article)
             print("added: " + art['title'] + " to Database")
-        else:
-            self.session.merge(article)
-            print("merged: " + art['title'] + " in Database")
         self.session.commit()
 
     def insert_reference(self, ref):
@@ -37,8 +34,6 @@ class DBSession:
             reference = Reference(id=ref['id'], url=ref['url'], ref=ref['ref'])
             self.session.add(reference)
             print("added reference from: " + ref['url'] + " to: " + ref['ref'])
-        else:
-            print("reference already exists in database")
         self.session.commit()
 
     def insert_person(self, person):
@@ -47,8 +42,6 @@ class DBSession:
             pers = Person(name=person['name'])
             self.session.add(pers)
             print("added: " + person['name'] + " to database")
-        else:
-            print("person already exists in database")
         self.session.commit()
 
     def insert_person_rel(self, rel):
@@ -63,8 +56,6 @@ class DBSession:
                                  main_person=rel['main'])
             self.session.add(relation)
             print("added relation from: " + rel['article'] + " to: " + rel['person'])
-        else:
-            print("relation already exists in database")
         self.session.commit()
 
     def insert_organisation(self, organisation):
@@ -73,8 +64,6 @@ class DBSession:
             org = Organisation(name=organisation['name'])
             self.session.add(org)
             print("added: " + organisation['name'] + " to database")
-        else:
-            print("organisation already exists in database")
         self.session.commit()
 
     def insert_organisation_rel(self, rel):
@@ -88,8 +77,6 @@ class DBSession:
                                        count=rel['count'])
             self.session.add(relation)
             print("added relation from: " + rel['article'] + " to: " + rel['organisation'])
-        else:
-            print("relation already exists in database")
         self.session.commit()
 
     def insert_location(self, location):
@@ -98,8 +85,6 @@ class DBSession:
             loc = Location(name=location['name'])
             self.session.add(loc)
             print("added: " + location['name'] + " to database")
-        else:
-            print("location already exists in database")
         self.session.commit()
 
     def insert_location_rel(self, rel):
@@ -113,8 +98,6 @@ class DBSession:
                                    count=rel['count'])
             self.session.add(relation)
             print("added relation from: " + rel['article'] + " to: " + rel['location'])
-        else:
-            print("relation already exists in database")
         self.session.commit()
 
     def commit(self):

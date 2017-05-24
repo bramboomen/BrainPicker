@@ -6,7 +6,8 @@ from database_utils import DBSession
 
 class Indexer:
 
-    def __init__(self, start_year, start_month, start_day, local, save):
+    def __init__(self, date, local=False, save=True):
+        start_year, start_month, start_day = date.year, date.month, date.day
         self.baseurl = "https://www.brainpickings.org"
         self.start_date = dt.date(start_year, start_month, start_day)
         self.end_date = dt.date.today()
@@ -37,7 +38,6 @@ class Indexer:
             if (page != "empty"):
                 for article in page:
                     articlelist.append(article)
-                    print("found: " + article['title'])
                     db.insert_article(article)
             self.start_date += delta
         print("--- FINISHED ---")
