@@ -2,12 +2,18 @@ from database_utils import DBSession
 from database import *
 from sqlalchemy import func
 from sqlalchemy.sql import collate
+from sqlalchemy.orm import sessionmaker
 import wikipedia as wiki
 from utils import ProgressBar
+from sandbox.dbpedia import Name
 
 
 db = DBSession()
 dbs = db.session
+
+engine = create_engine('sqlite:///names.db')
+db_session = sessionmaker(bind=engine)
+ndbs = db_session()
 
 
 def optimize_my_database():
@@ -28,7 +34,7 @@ def optimize_my_database():
     link_errors()
 
     print("Verify")
-    verify_all_with_wikipedia()
+    verify_all_with_dbpedia()
 
 
 def link_errors():
@@ -138,6 +144,26 @@ def merge_person(name):
     dbs.commit()
 
 
+def verify_all_with_dbpedia():
+    people = dbs.query(Person).all()
+    pb = ProgressBar(people.__len__())
+
+    for person in people:
+        pb.update_print(people.index(person))
+        verified = verify_with_dbpedia(person.name)
+        if verified:
+            person.verified = True
+    dbs.commit()
+
+
+def verify_with_dbpedia(name):
+    result = ndbs.query(Name).filter(func.lower(Name.name) == func.lower(name)).first()
+    if result:
+        return True
+    else:
+        return False
+
+
 def verify_all_with_wikipedia():
     people = dbs.query(Person).all()
     pb = ProgressBar(people.__len__())
@@ -148,7 +174,6 @@ def verify_all_with_wikipedia():
         name, count = verify_with_wikipedia(person.name, threshold)
         if name and count < threshold:
             person.verified = True
-
     dbs.commit()
 
 
@@ -170,6 +195,3 @@ def wiki_search_counter(name, search):
         elif any(word in item for word in name.split()):
             counter += 1
     return counter
-
-
-fix_case_duplication()

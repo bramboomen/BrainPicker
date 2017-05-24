@@ -72,6 +72,14 @@ class PersonRel(base):
     person2 = Column(String(250), ForeignKey('person.name', ondelete="CASCADE", onupdate="CASCADE"))
     count = Column(Integer)
 
+class LastRun(base):
+    __tablename__ = 'lastrun'
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    date = Column(types.Date, nullable=True)
+
 # engine = create_engine('postgresql://braindb@localhost/braindb')
 engine = create_engine('sqlite:///brain.db')
 base.metadata.create_all(engine)
+
+
+

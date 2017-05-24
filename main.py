@@ -2,8 +2,23 @@
 
 from indexer import Indexer
 from scraper import scrape
+import datetime as dt
+from database_utils import DBSession
+from database_optimalisation import optimize_my_database as optimize
+from database import LastRun
+from ner import NERserver
 
-# index = Indexer(2010, 11, 10, local=False, save=True)
-# index.bp_index()
-wtd = "please crawl: people, organisations and locations"
-scrape(58, -1, True, False, wtd)
+dbs = DBSession().session
+ner_server = NERserver()
+
+date = dbs.query(LastRun.date).order_by(LastRun.id.desc()).first()[0]
+
+index = Indexer(date)
+index.bp_index()
+ner_server.start()
+scrape(date, what_to_do="references people")
+ner_server.stop()
+optimize()
+
+dbs.add(LastRun(date=dt.date.today()))
+dbs.commit()

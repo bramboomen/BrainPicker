@@ -1,18 +1,11 @@
+import subprocess
+import signal
+import os
+import time
 from sner import Ner
 from nltk import pos_tag
 from nltk.chunk import conlltags2tree
 from nltk.tree import Tree
-from bs4 import BeautifulSoup
-
-
-# set correct java runtime version because OSX stupid.
-import os
-java_path = "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java"
-os.environ['JAVAHOME'] = java_path
-
-# file = "www.brainpickings.org/2017/03/10/elizabeth-bishop-efforts-of-affection-a-memoir-of-marianne-moore/.html"
-# file = file.replace("/", ":")
-# page = open("./html_pages/" + file, "r")
 
 
 class NameFinder:
@@ -28,12 +21,11 @@ class NameFinder:
     def get_persons(self):
         """
         :return: List of dicts
-         {
+        {
             "name": 'Name of Person',
             "type": 'PERSON',
             "count": int
-         }
-         
+        }
         """
         self.check()
         return self.count(self.persons)
@@ -152,3 +144,21 @@ class MyNer(Ner):
         sent_conlltags = [(token, pos, ne) for token, pos, ne in zip(sent_tokens, sent_pos_tags, sent_ne_tags)]
         ne_tree = conlltags2tree(sent_conlltags)
         return ne_tree
+
+
+class NERserver:
+
+    def __init__(self):
+        self.dr = os.path.dirname(__file__)
+        self.process = None
+
+    def start(self):
+        if not self.process:
+            self.process = subprocess.Popen("exec " + self.dr + '/stanfordnerserver.sh',
+                                            stdout=subprocess.PIPE, shell=True)
+            time.sleep(10)
+        else:
+            print("ner server already running")
+
+    def stop(self):
+        self.process.kill()
