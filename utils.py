@@ -71,7 +71,7 @@ def save_html(html_string, location, log):
 
 
 def dts(x):
-    if (x < 10 and x > 0):
+    if 0 < x < 10:
         return "0" + (str(x))
     else:
         return str(x)

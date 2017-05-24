@@ -65,6 +65,13 @@ class LocationRel(base):
     count = Column(Integer)
 
 
+class PersonRel(base):
+    __tablename__ = 'person_rel'
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    person1 = Column(String(250), ForeignKey('person.name', ondelete="CASCADE", onupdate="CASCADE"))
+    person2 = Column(String(250), ForeignKey('person.name', ondelete="CASCADE", onupdate="CASCADE"))
+    count = Column(Integer)
+
 # engine = create_engine('postgresql://braindb@localhost/braindb')
 engine = create_engine('sqlite:///brain.db')
 base.metadata.create_all(engine)
