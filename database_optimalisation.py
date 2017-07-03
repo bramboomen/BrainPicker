@@ -130,7 +130,7 @@ def merge_person(name):
     count = 0
     verified = False
     for person in people:
-        count += person.count
+        count = count + person.count if person.count else count
         if person.verified:
             verified = True
     person = people[0]
@@ -157,7 +157,7 @@ def verify_all_with_dbpedia():
 
 
 def verify_with_dbpedia(name):
-    result = ndbs.query(Name).filter(func.lower(Name.name) == func.lower(name)).first()
+    result = ndbs.query(Name).filter(Name.name.contains(name)).first()
     if result:
         return True
     else:

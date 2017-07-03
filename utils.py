@@ -92,6 +92,8 @@ class ProgressBar:
         bar = self.gen_bar(percentage)
         sys.stdout.write("\r" + str(percentage) + "% " + bar)
         sys.stdout.flush()
+        if percentage == 100:
+            print("\n")
 
     def update_print(self, current):
         self.update(current)
