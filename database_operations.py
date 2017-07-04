@@ -47,4 +47,5 @@ def link_people():
         dbs.commit()
 
 
+
 run_operations()
