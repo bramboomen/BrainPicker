@@ -31,7 +31,7 @@ def optimize_my_database():
     fix_symbols()
 
     print("Fix link-errors")
-    link_errors()
+    #link_errors()
 
     print("Verify")
     verify_all_with_dbpedia()
@@ -46,10 +46,10 @@ def link_errors():
             reference.ref = reference.ref.replace(wrong_link, "https://www.brain")
     dbs.commit()
     # Any wrong links left get deleted
-    wrong_references = dbs.query(Reference).filter(Reference.ref.notlike("https://www.brain")).all()
-    for wrong_reference in wrong_references:
-        dbs.delete(wrong_reference)
-    dbs.commit()
+    # wrong_references = dbs.query(Reference).filter(Reference.ref.notlike("https://www.brain")).all()
+    # for wrong_reference in wrong_references:
+    #     dbs.delete(wrong_reference)
+    # dbs.commit()
 
 
 def fix_symbols():
@@ -130,7 +130,7 @@ def merge_person(name):
     count = 0
     verified = False
     for person in people:
-        count += person.count
+        count = count + person.count if person.count else count
         if person.verified:
             verified = True
     person = people[0]
@@ -145,7 +145,7 @@ def merge_person(name):
 
 
 def verify_all_with_dbpedia():
-    people = dbs.query(Person).all()
+    people = dbs.query(Person).filter(Person.verified == None).all()
     pb = ProgressBar(people.__len__())
 
     for person in people:
@@ -153,11 +153,13 @@ def verify_all_with_dbpedia():
         verified = verify_with_dbpedia(person.name)
         if verified:
             person.verified = True
+        else:
+            person.verified = False
     dbs.commit()
 
 
 def verify_with_dbpedia(name):
-    result = ndbs.query(Name).filter(func.lower(Name.name) == func.lower(name)).first()
+    result = ndbs.query(Name).filter(Name.name.contains(name)).first()
     if result:
         return True
     else:

@@ -5,6 +5,7 @@ from scraper import scrape
 import datetime as dt
 from database_utils import DBSession
 from database_optimalisation import optimize_my_database as optimize
+from database_operations import run_operations as operate
 from database import LastRun
 from ner import NERserver
 
@@ -19,6 +20,7 @@ ner_server.start()
 scrape(date, what_to_do="references people")
 ner_server.stop()
 optimize()
+operate()
 
 dbs.add(LastRun(date=dt.date.today()))
 dbs.commit()
