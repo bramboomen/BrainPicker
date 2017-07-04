@@ -10,11 +10,11 @@ dbs = db.session
 
 def run_operations():
     link_people()
-    # check_popularity()
+    check_popularity()
 
 
 def check_popularity():
-    people = dbs.query(Person).all()
+    people = dbs.query(Person).filter(Person.count == None).all()
     pb = ProgressBar(people.__len__())
 
     for person in people:
@@ -26,7 +26,8 @@ def check_popularity():
 
 
 def link_people():
-    articles = dbs.query(Article.url).all()
+    date = dbs.query(LastRun.date).order_by(LastRun.id.desc()).first()[0]
+    articles = dbs.query(Article.url).filter(Article.date > date).all()
     pb = ProgressBar(articles.__len__())
     for article in articles:
         pb.update_print(articles.index(article))
@@ -45,6 +46,3 @@ def link_people():
             else:
                 dbs.add(PersonRel(person1=p1, person2=p2, count=1))
         dbs.commit()
-
-
-run_operations()
