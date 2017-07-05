@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 import wikipedia as wiki
 from utils import ProgressBar
 from sandbox.dbpedia import Name
-
+import os
 
 db = DBSession()
 dbs = db.session
@@ -197,3 +197,41 @@ def wiki_search_counter(name, search):
         elif any(word in item for word in name.split()):
             counter += 1
     return counter
+
+def delete_list():
+    # Delete selected list of articles
+    lijst = []
+
+    # Dit kan nog ietsje mooier
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(dir_path + "/delete_list.txt", "r") as delete_list:
+        for line in delete_list:
+            lijst.append(line.rstrip('\n'))
+    for link in lijst:
+        article = dbs.query(Article).filter(Article.url == link).first()
+        refurl = dbs.query(Reference).filter(Reference.url == link).all()
+        ref = dbs.query(Reference).filter(Reference.ref == link).all()
+        people = dbs.query(PeopleRel).filter(PeopleRel.article == link).all()
+
+
+
+        if article:
+            dbs.delete(article)
+            dbs.commit()
+        if refurl:
+            for reference in refurl:
+                dbs.delete(reference)
+            dbs.commit()
+        if ref:
+            for reference in ref:
+                dbs.delete(reference)
+            dbs.commit()
+        if people:
+            for person in people:
+                dbs.delete(person)
+            dbs.commit()
+
+
+
+
+
