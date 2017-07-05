@@ -211,6 +211,9 @@ def delete_list():
         article = dbs.query(Article).filter(Article.url == link).first()
         refurl = dbs.query(Reference).filter(Reference.url == link).all()
         ref = dbs.query(Reference).filter(Reference.ref == link).all()
+        people = dbs.query(PeopleRel).filter(PeopleRel.article == link).all()
+
+
 
         if article:
             dbs.delete(article)
@@ -223,6 +226,11 @@ def delete_list():
             for reference in ref:
                 dbs.delete(reference)
             dbs.commit()
+        if people:
+            for person in people:
+                dbs.delete(person)
+            dbs.commit()
+
 
 
 
