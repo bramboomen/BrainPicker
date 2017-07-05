@@ -9,7 +9,8 @@ class Indexer:
     def __init__(self, date, local=False, save=True):
         start_year, start_month, start_day = date.year, date.month, date.day
         self.baseurl = "https://www.brainpickings.org"
-        self.start_date = dt.date(start_year, start_month, start_day)
+        #self.start_date = dt.date(start_year, start_month, start_day)
+        self.start_date = dt.date.today()
         self.end_date = dt.date.today()
         self.local = local
         self.save = save
@@ -85,5 +86,18 @@ class Indexer:
                     and ['yellow'] in article.attrs.values()):
                 url = article['href']
                 title = str(article.contents[0])
-                urls.append({'url': url, 'title': title})
+                tags = self.fetch_tags(article)
+                urls.append({'url': url, 'title': title, 'tags': tags})
         return urls
+
+        # returned de tags als losse string uit een html bestand
+
+    def fetch_tags(self, html):
+        tags = []
+        soup = BeautifulSoup(html, "html.parser")
+        r = soup.find_all("a", {"rel": "tag"})
+
+        for tag in r:
+            tags.append(tag.string)
+
+        return tags
