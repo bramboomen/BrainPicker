@@ -3,6 +3,7 @@ from database import *
 from sqlalchemy import func
 from sqlalchemy.sql import collate
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import update
 import wikipedia as wiki
 from utils import ProgressBar
 from sandbox.dbpedia import Name
@@ -213,8 +214,6 @@ def delete_list():
         ref = dbs.query(Reference).filter(Reference.ref == link).all()
         people = dbs.query(PeopleRel).filter(PeopleRel.article == link).all()
 
-
-
         if article:
             dbs.delete(article)
             dbs.commit()
@@ -230,6 +229,34 @@ def delete_list():
             for person in people:
                 dbs.delete(person)
             dbs.commit()
+
+def same_person():
+    # Uses a list of names that refer to the same person to add these together in the DB
+    lijst = []
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    with open(dir_path + "/same_name.txt", "r") as same_name_list:
+        for line in same_name_list:
+            lijst.append((line.split("=")[0]).rstrip('\n'))
+            lijst.append((line.split("=")[1]).rstrip('\n'))
+    # Iterate through names of file, every even number is a incorrect name, every odd number a correct one
+    for name_bad, name_correct in zip(lijst[::2], lijst[1::2]):
+        names_fake = dbs.query(PeopleRel).filter(PeopleRel.person == name_bad).all()
+        name_fake = dbs.query(Person).filter(Person.name == name_bad).first()
+        name_good = dbs.query(Person).filter(Person.name == name_correct).first()
+
+        # Update the correct names count, delete wrong name in table Person
+        if name_fake:
+            name_good.count += name_fake.count
+            dbs.delete(name_fake)
+        # Change person name in table People_Rel
+        if names_fake:
+            for row_bad in names_fake:
+                row_bad.person = name_correct
+        dbs.commit()
+
+
+
+
 
 
 
