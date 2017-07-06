@@ -12,12 +12,12 @@ from ner import NERserver
 dbs = DBSession().session
 ner_server = NERserver()
 
-date = dbs.query(LastRun.date).order_by(LastRun.id.desc()).first()[0]
-
-index = Indexer(date)
+# date = dbs.query(LastRun.date).order_by(LastRun.id.desc()).first()[0]
+date = dt.date(year=2009, month=1, day=1)
+index = Indexer(date, local=True)
 index.bp_index()
 ner_server.start()
-scrape(date, what_to_do="references people")
+scrape(date, what_to_do="references people", local=True)
 ner_server.stop()
 optimize()
 operate()

@@ -80,6 +80,3 @@ class LastRun(base):
 # engine = create_engine('postgresql://braindb@localhost/braindb')
 engine = create_engine('sqlite:///brain.db')
 base.metadata.create_all(engine)
-
-
-
