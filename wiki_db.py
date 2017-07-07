@@ -16,6 +16,7 @@ class WikiDB:
         return result
 
     def text_from_page(self, title):
+        title = re.sub(r'(\.(?! ))', r'\1 ', title)
         title = title.replace(" ", "_")
         title = title.split("|")[0]
         stmnt = "select old_text from page " \
