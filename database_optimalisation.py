@@ -1,10 +1,11 @@
+from __init__ import log as logger
 from database_utils import DBSession
 from database import *
 from sqlalchemy import func
 from sqlalchemy.sql import collate
 from sqlalchemy.orm import sessionmaker
 import wikipedia as wiki
-from utils import ProgressBar
+# from utils import ProgressBar
 from sandbox.dbpedia import Name
 import os
 
@@ -17,23 +18,23 @@ ndbs = db_session()
 
 
 def optimize_my_database():
-    print("Optimize one-offs")
+    logger.write_log("Optimize one-offs")
     delete_one_offs()
 
-    print("Optimize too-longs")
+    logger.write_log("Optimize too-longs")
     delete_five_or_more()
 
-    print("Optimize duplication")
+    logger.write_log("Optimize duplication")
     fix_name_duplication()
     fix_case_duplication()
 
-    print("Optimize not-letters")
+    logger.write_log("Optimize not-letters")
     fix_symbols()
 
-    print("Fix link-errors")
-    #link_errors()
+    # logger.write_log("Fix link-errors")
+    # link_errors()
 
-    print("Verify")
+    logger.write_log("Verify")
     verify_all_with_dbpedia()
 
 
@@ -70,10 +71,10 @@ def delete_one_offs():
     # Find all people with singleton names who get referenced < 5 times
     # These are most likely not persons
     people = dbs.query(Person).filter(Person.name.notlike("% %")).all()
-    pb = ProgressBar(people.__len__())
+    # pb = ProgressBar(people.__len__())
 
     for person in people:
-        pb.update_print(people.index(person))
+        # pb.print(people.index(person))
         references = dbs.query(PeopleRel.count).filter(PeopleRel.person == person.name).all()
         count = sum(i[0] for i in references)
         if count < 5:
@@ -146,10 +147,10 @@ def merge_person(name):
 
 def verify_all_with_dbpedia():
     people = dbs.query(Person).filter(Person.verified == None).all()
-    pb = ProgressBar(people.__len__())
+    # pb = ProgressBar(people.__len__())
 
     for person in people:
-        pb.update_print(people.index(person))
+        # pb.print(people.index(person))
         verified = verify_with_dbpedia(person.name)
         if verified:
             person.verified = True
@@ -168,11 +169,11 @@ def verify_with_dbpedia(name):
 
 def verify_all_with_wikipedia():
     people = dbs.query(Person).all()
-    pb = ProgressBar(people.__len__())
+    # pb = ProgressBar(people.__len__())
     threshold = 1000
 
     for person in people:
-        pb.update_print(people.index(person))
+        # pb.update_logger.write_log(people.index(person))
         name, count = verify_with_wikipedia(person.name, threshold)
         if name and count < threshold:
             person.verified = True
@@ -230,8 +231,3 @@ def delete_list():
             for person in people:
                 dbs.delete(person)
             dbs.commit()
-
-
-
-
-

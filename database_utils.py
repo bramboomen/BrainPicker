@@ -1,3 +1,4 @@
+from __init__ import log as logger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import hashlib
@@ -22,7 +23,7 @@ class DBSession:
         article = Article(url=art['url'], title=art['title'], date=art['date'])
         if not exists:
             self.session.add(article)
-            print("added: " + art['title'] + " to Database")
+            logger.write_log("added: " + art['title'] + " to Database")
         self.session.commit()
 
     def insert_reference(self, ref):
@@ -33,7 +34,7 @@ class DBSession:
         if not exists:
             reference = Reference(id=ref['id'], url=ref['url'], ref=ref['ref'])
             self.session.add(reference)
-            print("added reference from: " + ref['url'] + " to: " + ref['ref'])
+            logger.write_log("added reference from: " + ref['url'] + " to: " + ref['ref'])
         self.session.commit()
 
     def insert_person(self, person):
@@ -41,7 +42,7 @@ class DBSession:
         if not exists:
             pers = Person(name=person['name'])
             self.session.add(pers)
-            print("added: " + person['name'] + " to database")
+            logger.write_log("added: " + person['name'] + " to database")
         self.session.commit()
 
     def insert_person_rel(self, rel):
@@ -55,7 +56,7 @@ class DBSession:
                                  count=rel['count'],
                                  main_person=rel['main'])
             self.session.add(relation)
-            print("added relation from: " + rel['article'] + " to: " + rel['person'])
+            logger.write_log("added relation from: " + rel['article'] + " to: " + rel['person'])
         self.session.commit()
 
     def insert_organisation(self, organisation):
@@ -63,7 +64,7 @@ class DBSession:
         if not exists:
             org = Organisation(name=organisation['name'])
             self.session.add(org)
-            print("added: " + organisation['name'] + " to database")
+            logger.write_log("added: " + organisation['name'] + " to database")
         self.session.commit()
 
     def insert_organisation_rel(self, rel):
@@ -76,7 +77,7 @@ class DBSession:
                                        organisation=rel['organisation'],
                                        count=rel['count'])
             self.session.add(relation)
-            print("added relation from: " + rel['article'] + " to: " + rel['organisation'])
+            logger.write_log("added relation from: " + rel['article'] + " to: " + rel['organisation'])
         self.session.commit()
 
     def insert_location(self, location):
@@ -84,7 +85,7 @@ class DBSession:
         if not exists:
             loc = Location(name=location['name'])
             self.session.add(loc)
-            print("added: " + location['name'] + " to database")
+            logger.write_log("added: " + location['name'] + " to database")
         self.session.commit()
 
     def insert_location_rel(self, rel):
@@ -97,7 +98,7 @@ class DBSession:
                                    location=rel['location'],
                                    count=rel['count'])
             self.session.add(relation)
-            print("added relation from: " + rel['article'] + " to: " + rel['location'])
+            logger.write_log("added relation from: " + rel['article'] + " to: " + rel['location'])
         self.session.commit()
 
     def commit(self):

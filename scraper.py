@@ -1,5 +1,6 @@
-from bs4 import BeautifulSoup # Library for parsing html-tags ao.
-from utils import read, save_html, Logger
+from __init__ import log as logger
+from bs4 import BeautifulSoup  # Library for parsing html-tags ao.
+from utils import read, save_html
 from database_utils import DBSession
 from database import Article
 from ner import NameFinder
@@ -66,7 +67,6 @@ class Scraper:
         self.url = url
         self.local = local
         self.save = save
-        self.log = Logger()
         self.entry = self.bp_preprocessor()
         self.ner = NameFinder(self.entry)
 
@@ -77,7 +77,7 @@ class Scraper:
         return links
 
     def get_internal_links(self):
-        print("visiting: " + self.url)
+        logger.write_log("visiting: " + self.url)
         links = self.get_links()
         internal_links = []
         for link in links:
@@ -86,7 +86,7 @@ class Scraper:
         return internal_links
 
     def get_people(self):
-        print("getting people from: " + self.url)
+        logger.write_log("getting people from: " + self.url)
         persons = self.ner.get_persons()
         main = 0
         if persons:
@@ -98,20 +98,20 @@ class Scraper:
         return persons
 
     def get_organisations(self):
-        print("getting orginisations from: " + self.url)
+        logger.write_log("getting orginisations from: " + self.url)
         return self.ner.get_organisations()
 
     def get_locations(self):
-        print("getting locations from: " + self.url)
+        logger.write_log("getting locations from: " + self.url)
         return self.ner.get_locations()
 
     def bp_preprocessor(self):
-        html = read(self.url, self.local, self.log)
+        html = read(self.url, self.local)
         # Save the article locally
         if self.save and not self.local:
             title = self.url.replace("https://", "")
             title = title.replace("/", ":")
-            save_html(html, "html_pages/" + title, self.log)
+            save_html(html, "html_pages/" + title)
         soup = BeautifulSoup(html, "html.parser")
         r = soup.find('div', {"class": "entry_content"})
         return r
