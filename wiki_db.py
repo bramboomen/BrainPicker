@@ -6,7 +6,7 @@ class WikiDB:
     def __init__(self):
         self.conn = pymysql.connect(host='localhost',
                                     user='brain',
-                                    db='wiki',
+                                    db='enwiki',
                                     cursorclass=pymysql.cursors.DictCursor)
 
     def query(self, statement):
@@ -56,7 +56,7 @@ def wikipedia_game(start_subject, goal_subject):
     stack = [[start_node], []]
     visited = []
     depth = 0
-    max_depth = 3
+    max_depth = 2
     results = []
     while stack:
         if not stack[depth]:
@@ -70,6 +70,42 @@ def wikipedia_game(start_subject, goal_subject):
         if goal(wiki, t.name, goal_subject):
             results.append({"node": t, "depth": depth})
             # return t, str(depth)
+        elif depth < max_depth:
+            children = wiki.get_wiki_links(t.name)
+            child_nodes = []
+            for child in children:
+                if child not in visited:
+                    child_nodes.append(Node(child, t))
+            stack[depth+1].extend(child_nodes)
+    return results, visited.__len__()
+
+
+def wikipedia_game_simple(start_subject, goal_subject):
+    """
+    Breadth-first search
+    :param start_subject: Start node
+    :param goal_subject: Goal node
+    :return: First found node
+    """
+    wiki = WikiDB()
+    start_node = Node(start_subject)
+    stack = [[start_node], []]
+    visited = []
+    depth = 0
+    max_depth = 2
+    results = []
+    while stack:
+        if not stack[depth]:
+            depth += 1
+            if depth > max_depth:
+                break
+            stack.append([])
+        t = stack[depth][0]
+        visited.append(t.name)
+        del stack[depth][0]
+        if goal(wiki, t.name, goal_subject):
+            results.append({"node": t, "depth": depth})
+            return results, visited.__len__()
         elif depth < max_depth:
             children = wiki.get_wiki_links(t.name)
             child_nodes = []
@@ -100,7 +136,7 @@ def test_method():
     s2 = "Johann Sebastian Bach"
     s1 = "Susan Sontag"
     best_result = {"depth": 100000}
-    result, vis = wikipedia_game(s1, s2)
+    result, vis = wikipedia_game_simple(s1, s2)
     if result:
         for r in result:
             if r["depth"] < best_result["depth"]:

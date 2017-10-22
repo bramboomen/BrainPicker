@@ -7,8 +7,8 @@ db = DBSession()
 dbs = db.session
 wiki = WikiDB()
 
-# people = dbs.query(Person).filter(Person.verified == 1).all()
-people = dbs.query(Person).all()
+people = dbs.query(Person).filter(Person.verified == 1).all()
+# people = dbs.query(Person).all()
 failed = []
 succeeded = []
 failed_again = []
@@ -20,8 +20,6 @@ for p in people:
         succeeded.append({"name": p.name, "count": p.count})
 
 for p in failed:
-    if p["name"] == "C.S. Lewis":
-        bram = " "
     name = p["name"].encode("latin-1", "replace")
     name = name.decode("latin-1")
     name = re.sub(r'(\.(?! ))', r'\1 ', name)

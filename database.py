@@ -1,6 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy import types
 
@@ -71,11 +70,15 @@ class PersonRel(base):
     person1 = Column(String(250), ForeignKey('person.name', ondelete="CASCADE", onupdate="CASCADE"))
     person2 = Column(String(250), ForeignKey('person.name', ondelete="CASCADE", onupdate="CASCADE"))
     count = Column(Integer)
+    wiki_lenght = Column(Integer)
+    wiki_path = Column(Text)
+
 
 class LastRun(base):
     __tablename__ = 'lastrun'
     id = Column(Integer, autoincrement=True, primary_key=True)
     date = Column(types.Date, nullable=True)
+
 
 # engine = create_engine('postgresql://braindb@localhost/braindb')
 engine = create_engine('sqlite:///brain.db')

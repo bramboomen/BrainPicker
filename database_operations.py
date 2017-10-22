@@ -2,6 +2,7 @@ from database_utils import DBSession
 from database import *
 from utils import ProgressBar
 from sqlalchemy import or_, and_
+from wiki_db import wikipedia_game_simple, return_chain
 
 
 db = DBSession()
@@ -46,3 +47,35 @@ def link_people():
             else:
                 dbs.add(PersonRel(person1=p1, person2=p2, count=1))
         dbs.commit()
+
+
+def get_verified_relations():
+    people_rel = dbs.query(PersonRel).all()
+    peopl = dbs.query(Person.name).filter(Person.verified).all()
+    people = []
+    for p in peopl:
+        people.append(p[0])
+    result = []
+    for rel in people_rel:
+        if rel.person1 in people and rel.person2 in people:
+            result.append(rel)
+    return result
+
+
+def wiki_ranking():
+    relations = get_verified_relations()
+    for rel in relations:
+        result, vis = wikipedia_game_simple(rel.person1, rel.person2)
+        if result:
+            rel.wiki_lenght = result[0]['depth']
+            rel.wiki_path = str(return_chain(result[0]['node'], rel.person2))
+            print(str(rel.person1) + " -> " +
+                  str(rel.person2) + " | depth: " +
+                  str(result[0]['depth']))
+        else:
+            rel.wiki_lenght = -1
+            rel.wiki_path = ""
+        dbs.commit()
+
+
+wiki_ranking()
